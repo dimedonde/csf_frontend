@@ -5,28 +5,56 @@ import { registrarCompra } from '../api/compras'
 export default function CompraForm() {
   const [productos, setProductos] = useState([])
   const [carrito, setCarrito] = useState([])
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     load()
   }, [])
 
   const load = async () => {
-    const res = await getProductos()
-    setProductos(res.data)
+    setLoading(true)
+    try {
+      const res = await getProductos()
+      setProductos(res.data)
+    } catch (err) {
+      console.error(err)
+      alert('Error cargando productos')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const add = (p) => {
-    setCarrito([...carrito, {...p, cantidad:1}])
+    const existe = carrito.find(x => x.id_producto === p.id_producto)
+
+    if (existe) {
+      setCarrito(carrito.map(x =>
+        x.id_producto === p.id_producto
+          ? { ...x, cantidad: x.cantidad + 1 }
+          : x
+      ))
+    } else {
+      setCarrito([...carrito, { ...p, cantidad: 1 }])
+    }
   }
 
   const save = async () => {
-    await registrarCompra(carrito)
-    setCarrito([])
+    try {
+      await registrarCompra(carrito)
+      setCarrito([])
+      load()
+      alert('Compra registrada')
+    } catch (err) {
+      console.error(err)
+      alert('Error registrando compra')
+    }
   }
 
   return (
     <div>
       <h2>Compras</h2>
+
+      {loading && <p>Cargando...</p>}
 
       {productos.map(p => (
         <div key={p.id_producto}>
@@ -36,14 +64,16 @@ export default function CompraForm() {
       ))}
 
       <h3>Carrito</h3>
-      {carrito.map((c,i)=>(
+      {carrito.map((c, i) => (
         <div key={i}>
           {c.nombre_producto}
-          <input type='number'
+          <input
+            type='number'
             value={c.cantidad}
-            onChange={(e)=>{
-              const copy=[...carrito]
-              copy[i].cantidad=parseInt(e.target.value)
+            onChange={(e) => {
+              const value = parseInt(e.target.value) || 0
+              const copy = [...carrito]
+              copy[i].cantidad = value
               setCarrito(copy)
             }}
           />
