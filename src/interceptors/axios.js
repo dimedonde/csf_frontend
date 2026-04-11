@@ -4,7 +4,7 @@ const api = axios.create({
   baseURL: 'http://localhost:5678/api'
 })
 
-// 🔐 REQUEST: agrega token automáticamente
+// REQUEST: agrega token automáticamente
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token')
@@ -21,7 +21,7 @@ api.interceptors.request.use(
   }
 )
 
-// 🚨 RESPONSE: manejo centralizado de errores
+// RESPONSE: manejo centralizado de errores
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -29,7 +29,7 @@ api.interceptors.response.use(
 
     const status = error.response?.status
 
-    // 🔴 401 → sesión inválida o expirada
+    // 401 → sesión inválida o expirada
     if (status === 401) {
       alert('Sesión expirada, vuelve a iniciar sesión')
 
@@ -39,15 +39,15 @@ api.interceptors.response.use(
       // recargar aplicación para forzar login
       window.location.reload()
     } 
-    // 🔴 otros errores controlados
+    // Otros errores controlados
     else if (status >= 400 && status < 500) {
       alert('Error en la solicitud')
     } 
-    // 🔴 errores del servidor
+    // Errores del servidor
     else if (status >= 500) {
       alert('Error del servidor')
     } 
-    // 🔴 error sin respuesta (network, backend caído, CORS, etc.)
+    // Error sin respuesta (network, backend caído, CORS, etc.)
     else {
       alert('Error de conexión con la API')
     }
