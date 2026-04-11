@@ -8,10 +8,10 @@ export default function Kardex() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    load()
+    loadProductos()
   }, [])
 
-  const load = async () => {
+  const loadProductos = async () => {
     setLoading(true)
     try {
       const res = await getProductos()
@@ -24,13 +24,13 @@ export default function Kardex() {
     }
   }
 
-  const open = async (id) => {
+  const open = async () => {
     try {
-      const res = await getMovimientos(id)
+      const res = await getMovimientos()
       setMovs(res.data)
     } catch (err) {
       console.error(err)
-      alert('Error cargando movimientos')
+      alert('Error cargando kardex')
     }
   }
 
@@ -40,18 +40,23 @@ export default function Kardex() {
 
       {loading && <p>Cargando...</p>}
 
+      {/* LISTA DE PRODUCTOS */}
       {productos.map(p => (
         <div key={p.id_producto}>
           {p.nombre_producto} | Stock: {p.stock_actual}
-          <button onClick={() => open(p.id_producto)}>Ver movimientos</button>
         </div>
       ))}
 
       <hr />
 
+      <button onClick={open}>Ver Kardex</button>
+
+      <hr />
+
+      {/* LISTA KÁRDEX */}
       {movs.map((m, i) => (
         <div key={i}>
-          {new Date(m.fecha_registro).toLocaleString()} - {m.tipo_movimiento} - {m.cantidad}
+          {m.Nombre_producto} | Stock: {m.StockActual} | Precio: S/{m.PrecioVenta}
         </div>
       ))}
     </div>
